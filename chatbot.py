@@ -87,18 +87,20 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
                 return "Please provide the code to execute. Example: 'run print(2+2)'"
     
     # PRIORITY 7: Handle specific question patterns with custom responses
-    if "what is" in original_text or "what's" in original_text or "explain" in original_text:
+    # Only trigger if it's actually a "what is" question, not a code generation request
+    if (("what is" in original_text or "what's" in original_text or "explain" in original_text) and 
+        not is_code_generation):
         # Try to provide custom explanation first
         if "manna" in original_text:
             return "Manna AI is an intelligent chatbot created by Tammanna and Mairaj. I can help with conversations, code execution, jokes, mood detection, and various other tasks. I'm designed to be helpful, empathetic, and fun to interact with!"
         
-        if "python" in original_text:
+        if "python" in original_text and ("what is" in original_text or "what's" in original_text):
             return "Python is a high-level, interpreted programming language known for its simplicity and readability. It's widely used for web development, data science, AI, automation, and more. I can help you run Python code - just type 'run' followed by your code!"
         
-        if "javascript" in original_text or "js" in original_text:
+        if ("javascript" in original_text or "js" in original_text) and ("what is" in original_text or "what's" in original_text):
             return "JavaScript is a programming language primarily used for web development. It enables interactive web pages and is essential for front-end development. Need help with JavaScript code? I can execute it for you!"
         
-        if "ai" in original_text or "artificial intelligence" in original_text:
+        if ("ai" in original_text or "artificial intelligence" in original_text) and ("what is" in original_text or "what's" in original_text):
             return "AI (Artificial Intelligence) is the simulation of human intelligence by machines. It includes machine learning, natural language processing, and more. I'm an example of AI! Created by Tammanna and Mairaj to help and assist users."
     
     # PRIORITY 8: Handle time/date questions
