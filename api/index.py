@@ -344,5 +344,10 @@ async def chat_endpoint(user_msg: UserMessage):
             "mood_emoji": "😐"
         }, status_code=200)  # Return 200 so frontend can display error
 
-# Vercel serverless handler - export the app directly
-# Vercel will automatically wrap FastAPI apps
+# Vercel serverless handler using Mangum
+try:
+    from mangum import Mangum
+    handler = Mangum(app, lifespan="off")
+except ImportError:
+    # Fallback if mangum not available
+    handler = app
