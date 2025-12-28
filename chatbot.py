@@ -29,31 +29,13 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
     if any(word in original_text for word in ["creator", "created", "who made", "who built", "about", "developer", "author", "tammanna", "mairaj"]):
         return "Manna AI was created by Tammanna and Mairaj. We're passionate developers who built this intelligent chatbot to help users with various tasks including AI conversations, code execution, jokes, mood detection, and more. Thank you for using Manna AI!"
 
-    # PRIORITY 2: Check knowledge base for custom responses
-    category = find_response_category(user_input)
-    if category:
-        custom_response = get_custom_response(category)
-        if custom_response:
-            return custom_response
-    
-    # PRIORITY 3: Check common Q&A
-    qa_response = get_qa_response(user_input)
-    if qa_response:
-        return qa_response
-
-    # PRIORITY 4: Respond to joke requests
-    if "joke" in original_text or "funny" in original_text:
-        return get_joke()
-
-    # PRIORITY 5: Handle code generation requests (give me code, show me code, write code)
-    # These will be handled by OpenAI for dynamic code generation
-    # More flexible detection - check for code-related phrases
+    # PRIORITY 2: Check knowledge base for custom responses (skip if code generation)
+    # Check for code generation first
     code_phrases = ["give me", "show me", "write", "create", "generate", "example", "sample", "how to"]
     code_words = ["code", "program", "script", "function", "algorithm", "snippet"]
     programming_tasks = ["print", "printing", "string", "variable", "list", "dictionary", "loop", "if", "class", "import"]
     math_code_words = ["sum", "summation", "add", "addition", "calculate", "calculation", "multiply", "divide"]
     
-    # Check if user is asking for code
     is_code_generation = (
         any(phrase in original_text for phrase in code_phrases) and 
         any(word in original_text for word in code_words)
@@ -66,9 +48,25 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
         any(word in original_text for word in ["python code", "java code", "javascript code", "code example"])
     )
     
-    if is_code_generation:
-        # Will fall through to OpenAI with code generation context
-        pass
+    # Skip knowledge base and Q&A if it's a code generation request
+    if not is_code_generation:
+        category = find_response_category(user_input)
+        if category:
+            custom_response = get_custom_response(category)
+            if custom_response:
+                return custom_response
+        
+        # PRIORITY 3: Check common Q&A
+        qa_response = get_qa_response(user_input)
+        if qa_response:
+            return qa_response
+
+    # PRIORITY 4: Respond to joke requests
+    if "joke" in original_text or "funny" in original_text:
+        return get_joke()
+
+    # PRIORITY 5: Code generation detection already done above
+    # is_code_generation variable is set above and will be used in OpenAI section
     
     # PRIORITY 6: Handle code execution and debugging requests
     if text.strip().startswith(("run", "execute", "code:", "debug")) or "run code" in original_text or "execute code" in original_text:
