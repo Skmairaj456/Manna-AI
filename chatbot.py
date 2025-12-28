@@ -46,54 +46,11 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
         return get_joke()
 
     # PRIORITY 5: Handle code generation requests (give me code, show me code, write code)
-    if any(phrase in original_text for phrase in ["give me code", "show me code", "write code", "code for", "python code", "example code", "sample code"]):
-        # Handle specific code requests
-        if any(word in original_text for word in ["sum", "add", "addition", "summation"]):
-            if any(word in original_text for word in ["two", "2", "number"]):
-                return """Here's Python code to sum two numbers:
-
-```python
-# Method 1: Simple function
-def add_numbers(a, b):
-    return a + b
-
-# Example usage
-result = add_numbers(5, 3)
-print(result)  # Output: 8
-
-# Method 2: Direct calculation
-num1 = 10
-num2 = 20
-sum_result = num1 + num2
-print(f"Sum of {num1} and {num2} is {sum_result}")
-
-# Method 3: User input
-num1 = float(input("Enter first number: "))
-num2 = float(input("Enter second number: "))
-print(f"Sum: {num1 + num2}")
-```
-
-Created by Tammanna and Mairaj! 💻"""
-        
-        if any(word in original_text for word in ["hello", "hello world"]):
-            return """Here's a simple Python "Hello, World!" program:
-
-```python
-print("Hello, World!")
-```
-
-Or with a function:
-```python
-def greet():
-    print("Hello, World!")
-
-greet()
-```
-
-Created by Tammanna and Mairaj! 💻"""
-        
-        # Generic code response
-        return "I can help you with Python code! Try asking specifically like:\n• 'Give me code for summing two numbers'\n• 'Show me Python code for [your task]'\n• 'Write code for [your task]'\n\nCreated by Tammanna and Mairaj! 💻"
+    # These will be handled by OpenAI for dynamic code generation
+    code_generation_keywords = ["give me code", "show me code", "write code", "code for", "python code", "example code", "sample code", "generate code", "create code", "how to code"]
+    if any(keyword in original_text for keyword in code_generation_keywords):
+        # Skip OpenAI fallback and handle directly with custom prompt
+        pass  # Will fall through to OpenAI with code generation context
     
     # PRIORITY 6: Handle code execution and debugging requests
     if text.strip().startswith(("run", "execute", "code:", "debug")) or "run code" in original_text or "execute code" in original_text:
