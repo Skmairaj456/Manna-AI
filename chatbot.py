@@ -48,19 +48,22 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
     # PRIORITY 5: Handle code generation requests (give me code, show me code, write code)
     # These will be handled by OpenAI for dynamic code generation
     # More flexible detection - check for code-related phrases
-    code_phrases = ["give me", "show me", "write", "create", "generate", "example", "sample"]
-    code_words = ["code", "program", "script", "function", "algorithm"]
-    math_code_words = ["sum", "summation", "add", "addition", "calculate", "calculation"]
+    code_phrases = ["give me", "show me", "write", "create", "generate", "example", "sample", "how to"]
+    code_words = ["code", "program", "script", "function", "algorithm", "snippet"]
+    programming_tasks = ["print", "printing", "string", "variable", "list", "dictionary", "loop", "if", "class", "import"]
+    math_code_words = ["sum", "summation", "add", "addition", "calculate", "calculation", "multiply", "divide"]
     
     # Check if user is asking for code
     is_code_generation = (
         any(phrase in original_text for phrase in code_phrases) and 
         any(word in original_text for word in code_words)
     ) or (
-        any(phrase in original_text for phrase in ["give me", "show me", "write", "create"]) and
-        any(word in original_text for word in math_code_words)
+        any(phrase in original_text for phrase in ["give me", "show me", "write", "create", "how to"]) and
+        any(word in original_text for word in programming_tasks + math_code_words)
     ) or (
-        "code" in original_text and any(word in original_text for word in ["for", "to", "of"])
+        "code" in original_text and any(word in original_text for word in ["for", "to", "of", "in"])
+    ) or (
+        any(word in original_text for word in ["python code", "java code", "javascript code", "code example"])
     )
     
     if is_code_generation:
@@ -159,18 +162,21 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
 
     try:
         # Check if this is a code generation request (same logic as above)
-        code_phrases = ["give me", "show me", "write", "create", "generate", "example", "sample"]
-        code_words = ["code", "program", "script", "function", "algorithm"]
-        math_code_words = ["sum", "summation", "add", "addition", "calculate", "calculation"]
+        code_phrases = ["give me", "show me", "write", "create", "generate", "example", "sample", "how to"]
+        code_words = ["code", "program", "script", "function", "algorithm", "snippet"]
+        programming_tasks = ["print", "printing", "string", "variable", "list", "dictionary", "loop", "if", "class", "import"]
+        math_code_words = ["sum", "summation", "add", "addition", "calculate", "calculation", "multiply", "divide"]
         
         is_code_request = (
             any(phrase in original_text for phrase in code_phrases) and 
             any(word in original_text for word in code_words)
         ) or (
-            any(phrase in original_text for phrase in ["give me", "show me", "write", "create"]) and
-            any(word in original_text for word in math_code_words)
+            any(phrase in original_text for phrase in ["give me", "show me", "write", "create", "how to"]) and
+            any(word in original_text for word in programming_tasks + math_code_words)
         ) or (
-            "code" in original_text and any(word in original_text for word in ["for", "to", "of"])
+            "code" in original_text and any(word in original_text for word in ["for", "to", "of", "in"])
+        ) or (
+            any(word in original_text for word in ["python code", "java code", "javascript code", "code example"])
         )
         
         # Enhanced system message with more context about Manna AI
