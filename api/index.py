@@ -343,5 +343,5 @@ async def chat_endpoint(user_msg: UserMessage):
             "mood_emoji": "😐"
         }, status_code=200)  # Return 200 so frontend can display error
 
-# Vercel serverless handler
-handler = app
+# Vercel serverless handler - export the app directly
+# Vercel will automatically wrap FastAPI apps
