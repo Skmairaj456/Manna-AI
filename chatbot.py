@@ -47,10 +47,25 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
 
     # PRIORITY 5: Handle code generation requests (give me code, show me code, write code)
     # These will be handled by OpenAI for dynamic code generation
-    code_generation_keywords = ["give me code", "show me code", "write code", "code for", "python code", "example code", "sample code", "generate code", "create code", "how to code"]
-    if any(keyword in original_text for keyword in code_generation_keywords):
-        # Skip OpenAI fallback and handle directly with custom prompt
-        pass  # Will fall through to OpenAI with code generation context
+    # More flexible detection - check for code-related phrases
+    code_phrases = ["give me", "show me", "write", "create", "generate", "example", "sample"]
+    code_words = ["code", "program", "script", "function", "algorithm"]
+    math_code_words = ["sum", "summation", "add", "addition", "calculate", "calculation"]
+    
+    # Check if user is asking for code
+    is_code_generation = (
+        any(phrase in original_text for phrase in code_phrases) and 
+        any(word in original_text for word in code_words)
+    ) or (
+        any(phrase in original_text for phrase in ["give me", "show me", "write", "create"]) and
+        any(word in original_text for word in math_code_words)
+    ) or (
+        "code" in original_text and any(word in original_text for word in ["for", "to", "of"])
+    )
+    
+    if is_code_generation:
+        # Will fall through to OpenAI with code generation context
+        pass
     
     # PRIORITY 6: Handle code execution and debugging requests
     if text.strip().startswith(("run", "execute", "code:", "debug")) or "run code" in original_text or "execute code" in original_text:
@@ -143,9 +158,20 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
         return "I can tell jokes, execute code, answer questions, and help with various tasks! For advanced AI conversations, an API key is needed. But I can still help with many things - try asking for a joke, running code, or asking about my capabilities!"
 
     try:
-        # Check if this is a code generation request
-        code_generation_keywords = ["give me code", "show me code", "write code", "code for", "python code", "example code", "sample code", "generate code", "create code", "how to code"]
-        is_code_request = any(keyword in original_text for keyword in code_generation_keywords)
+        # Check if this is a code generation request (same logic as above)
+        code_phrases = ["give me", "show me", "write", "create", "generate", "example", "sample"]
+        code_words = ["code", "program", "script", "function", "algorithm"]
+        math_code_words = ["sum", "summation", "add", "addition", "calculate", "calculation"]
+        
+        is_code_request = (
+            any(phrase in original_text for phrase in code_phrases) and 
+            any(word in original_text for word in code_words)
+        ) or (
+            any(phrase in original_text for phrase in ["give me", "show me", "write", "create"]) and
+            any(word in original_text for word in math_code_words)
+        ) or (
+            "code" in original_text and any(word in original_text for word in ["for", "to", "of"])
+        )
         
         # Enhanced system message with more context about Manna AI
         mood_context = {
