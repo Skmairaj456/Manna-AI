@@ -1,13 +1,38 @@
 # sentiment.py
 
-from textblob import TextBlob
-
 def analyze_sentiment(text: str) -> dict:
     """Return polarity and subjectivity of text"""
-    blob = TextBlob(text)
-    polarity = blob.sentiment.polarity
-    subjectivity = blob.sentiment.subjectivity
-    return {'polarity': polarity, 'subjectivity': subjectivity}
+    try:
+        from textblob import TextBlob
+        # Download NLTK data if needed (silent)
+        try:
+            import nltk
+            nltk.download('punkt', quiet=True)
+            nltk.download('brown', quiet=True)
+        except:
+            pass
+        
+        blob = TextBlob(text)
+        polarity = blob.sentiment.polarity
+        subjectivity = blob.sentiment.subjectivity
+        return {'polarity': polarity, 'subjectivity': subjectivity}
+    except Exception:
+        # Fallback to simple sentiment analysis
+        text_lower = text.lower()
+        positive_words = ['good', 'great', 'happy', 'love', 'like', 'awesome', 'amazing', 'wonderful', 'excellent', 'fantastic']
+        negative_words = ['bad', 'sad', 'hate', 'terrible', 'awful', 'horrible', 'angry', 'frustrated', 'disappointed']
+        
+        positive_count = sum(1 for word in positive_words if word in text_lower)
+        negative_count = sum(1 for word in negative_words if word in text_lower)
+        
+        if positive_count > negative_count:
+            polarity = 0.3
+        elif negative_count > positive_count:
+            polarity = -0.3
+        else:
+            polarity = 0.0
+        
+        return {'polarity': polarity, 'subjectivity': 0.5}
 
 def get_mood(text: str) -> str:
     """Detect user's mood from text"""

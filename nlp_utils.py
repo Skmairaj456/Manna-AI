@@ -1,7 +1,18 @@
 # nlp_utils.py
 
 import re
-from textblob import TextBlob
+
+# Try to import TextBlob, but make it optional
+try:
+    from textblob import TextBlob
+    # Download NLTK data if needed
+    try:
+        import nltk
+        nltk.download('punkt', quiet=True)
+    except:
+        pass
+except Exception:
+    TextBlob = None
 
 # Try to import translator, but make it optional
 translator = None
