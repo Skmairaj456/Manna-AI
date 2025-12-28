@@ -19,26 +19,45 @@ def fallback_mood(text: str) -> str:
 def fallback_mood_emoji(mood: str) -> str:
     return "😐"
 
-# Import with comprehensive error handling
+# Import with comprehensive error handling - delay imports until needed
+_chatbot_loaded = False
+_sentiment_loaded = False
+
+def _load_chatbot():
+    """Lazy load chatbot module"""
+    global get_response, _chatbot_loaded
+    if not _chatbot_loaded:
+        try:
+            from chatbot import get_response as cb_get_response
+            get_response = cb_get_response
+            _chatbot_loaded = True
+            print("✓ chatbot imported successfully")
+        except Exception as e:
+            print(f"✗ chatbot import error: {e}")
+            import traceback
+            traceback.print_exc()
+            _chatbot_loaded = True  # Mark as attempted to avoid retrying
+
+def _load_sentiment():
+    """Lazy load sentiment module"""
+    global get_mood, get_mood_emoji, _sentiment_loaded
+    if not _sentiment_loaded:
+        try:
+            from sentiment import get_mood as sg_get_mood, get_mood_emoji as sg_get_mood_emoji
+            get_mood = sg_get_mood
+            get_mood_emoji = sg_get_mood_emoji
+            _sentiment_loaded = True
+            print("✓ sentiment imported successfully")
+        except Exception as e:
+            print(f"✗ sentiment import error: {e}")
+            import traceback
+            traceback.print_exc()
+            _sentiment_loaded = True  # Mark as attempted
+
+# Set initial fallbacks
 get_response = fallback_response
 get_mood = fallback_mood
 get_mood_emoji = fallback_mood_emoji
-
-try:
-    from chatbot import get_response
-    print("✓ chatbot imported successfully")
-except Exception as e:
-    print(f"✗ chatbot import error: {e}")
-    import traceback
-    traceback.print_exc()
-
-try:
-    from sentiment import get_mood, get_mood_emoji
-    print("✓ sentiment imported successfully")
-except Exception as e:
-    print(f"✗ sentiment import error: {e}")
-    import traceback
-    traceback.print_exc()
 
 app = FastAPI(title="Manna AI")
 
@@ -294,6 +313,10 @@ class UserMessage(BaseModel):
 @app.post("/chat")
 async def chat_endpoint(user_msg: UserMessage):
     try:
+        # Lazy load modules on first use
+        _load_chatbot()
+        _load_sentiment()
+        
         response = get_response(user_msg.message, user_msg.user_id)
         
         # Detect mood
