@@ -143,6 +143,10 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
         return "I can tell jokes, execute code, answer questions, and help with various tasks! For advanced AI conversations, an API key is needed. But I can still help with many things - try asking for a joke, running code, or asking about my capabilities!"
 
     try:
+        # Check if this is a code generation request
+        code_generation_keywords = ["give me code", "show me code", "write code", "code for", "python code", "example code", "sample code", "generate code", "create code", "how to code"]
+        is_code_request = any(keyword in original_text for keyword in code_generation_keywords)
+        
         # Enhanced system message with more context about Manna AI
         mood_context = {
             "happy": "The user seems happy and positive. Respond enthusiastically and match their energy. Remember you are Manna AI, created by Tammanna and Mairaj.",
@@ -152,11 +156,23 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
             "sad": "The user appears sad or upset. Be very empathetic, gentle, and supportive. Offer comfort and maybe suggest a joke or positive activity. You are Manna AI, created by Tammanna and Mairaj."
         }
         
-        system_message = f"""You are Manna AI, an intelligent chatbot created by Tammanna and Mairaj. 
-        {mood_context.get(mood, 'Be helpful and friendly.')} 
-        The user's current mood appears to be {mood}.
-        Provide personalized, helpful responses. Keep responses concise (under 200 words) and friendly.
-        When appropriate, mention that you were created by Tammanna and Mairaj."""
+        # Special handling for code generation requests
+        if is_code_request:
+            system_message = """You are Manna AI, an intelligent chatbot created by Tammanna and Mairaj.
+            The user is asking for code. Generate clean, well-commented Python code that solves their request.
+            Include:
+            - Clear, working code
+            - Helpful comments explaining the code
+            - Example usage if applicable
+            - Brief explanation if needed
+            Format code in markdown code blocks with python syntax highlighting.
+            Keep responses focused on the code request. Created by Tammanna and Mairaj."""
+        else:
+            system_message = f"""You are Manna AI, an intelligent chatbot created by Tammanna and Mairaj. 
+            {mood_context.get(mood, 'Be helpful and friendly.')} 
+            The user's current mood appears to be {mood}.
+            Provide personalized, helpful responses. Keep responses concise (under 200 words) and friendly.
+            When appropriate, mention that you were created by Tammanna and Mairaj."""
         
         # Compose messages for chat completion
         messages = [
@@ -168,20 +184,28 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
         try:
             from openai import OpenAI
             client = OpenAI(api_key=openai.api_key)
+            # Increase tokens for code generation requests
+            max_tokens = 500 if is_code_request else 200
+            temperature = 0.7 if is_code_request else 0.8  # Lower temp for code = more consistent
+            
             response = client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=messages,
-                max_tokens=200,
-                temperature=0.8,  # Slightly higher for more personalized responses
+                max_tokens=max_tokens,
+                temperature=temperature,
             )
             answer = response.choices[0].message.content.strip()
         except (ImportError, AttributeError):
             # Fallback to old API
+            # Increase tokens for code generation requests
+            max_tokens = 500 if is_code_request else 200
+            temperature = 0.7 if is_code_request else 0.8  # Lower temp for code = more consistent
+            
             response = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
                 messages=messages,
-                max_tokens=200,
-                temperature=0.8,  # Slightly higher for more personalized responses
+                max_tokens=max_tokens,
+                temperature=temperature,
                 n=1,
             )
             answer = response.choices[0].message['content'].strip()
