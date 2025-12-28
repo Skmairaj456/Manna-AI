@@ -30,6 +30,11 @@ async def favicon():
     from fastapi.responses import Response
     return Response(status_code=204)  # No content
 
+# Health check endpoint
+@app.get("/health")
+async def health():
+    return {"status": "ok", "message": "Manna AI is running"}
+
 # Root route to serve the HTML page
 @app.get("/", response_class=HTMLResponse)
 async def serve_home():
