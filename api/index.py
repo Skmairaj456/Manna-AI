@@ -24,6 +24,12 @@ except Exception as e:
 
 app = FastAPI()
 
+# Handle favicon requests (browsers automatically request this)
+@app.get("/favicon.ico")
+async def favicon():
+    from fastapi.responses import Response
+    return Response(status_code=204)  # No content
+
 # Root route to serve the HTML page
 @app.get("/", response_class=HTMLResponse)
 async def serve_home():
