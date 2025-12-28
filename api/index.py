@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import sys
@@ -25,14 +25,9 @@ except Exception as e:
 app = FastAPI()
 
 # Handle favicon requests (browsers automatically request this)
-@app.get("/favicon.ico")
+@app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
-    try:
-        from fastapi.responses import Response
-        return Response(status_code=204)  # No content
-    except:
-        # Ultra-simple fallback
-        return Response(content="", status_code=204, media_type="image/x-icon")
+    return Response(content="", status_code=204)
 
 # Health check endpoint
 @app.get("/health")
