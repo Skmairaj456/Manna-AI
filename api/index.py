@@ -6,17 +6,31 @@ import sys
 import os
 
 # Add parent directory to path to import modules
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, parent_dir)
 
-# Import with error handling
+# Import with comprehensive error handling
+get_response = None
+get_mood = None
+get_mood_emoji = None
+
 try:
     from chatbot import get_response
-    from sentiment import get_mood, get_mood_emoji
+    print("✓ chatbot imported successfully")
 except Exception as e:
-    print(f"Import error: {e}")
-    # Fallback functions
+    print(f"✗ chatbot import error: {e}")
+    import traceback
+    traceback.print_exc()
     def get_response(user_input: str, user_id: str = "guest") -> str:
-        return "Error: Chatbot module not loaded properly. Please check the logs."
+        return f"Error: Chatbot module not loaded. {str(e)}"
+
+try:
+    from sentiment import get_mood, get_mood_emoji
+    print("✓ sentiment imported successfully")
+except Exception as e:
+    print(f"✗ sentiment import error: {e}")
+    import traceback
+    traceback.print_exc()
     def get_mood(text: str) -> str:
         return "neutral"
     def get_mood_emoji(mood: str) -> str:
@@ -38,17 +52,49 @@ async def health():
 @app.get("/", response_class=HTMLResponse)
 async def serve_home():
     try:
-        html_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "Manna.html")
-        if not os.path.exists(html_path):
-            # Fallback: try alternative path
-            html_path = os.path.join(os.path.dirname(__file__), "..", "static", "Manna.html")
-        return FileResponse(html_path)
+        # Try multiple paths
+        possible_paths = [
+            os.path.join(parent_dir, "static", "Manna.html"),
+            os.path.join(os.path.dirname(__file__), "..", "static", "Manna.html"),
+            os.path.join(os.path.dirname(__file__), "..", "..", "static", "Manna.html"),
+        ]
+        
+        html_path = None
+        for path in possible_paths:
+            if os.path.exists(path):
+                html_path = path
+                break
+        
+        if html_path:
+            return FileResponse(html_path)
+        else:
+            # Return a simple HTML page if file not found
+            return HTMLResponse("""
+            <!DOCTYPE html>
+            <html>
+            <head><title>Manna AI</title></head>
+            <body>
+                <h1>Manna AI Chatbot</h1>
+                <p>HTML file not found. Please check the deployment.</p>
+                <p>Try accessing: <a href="/health">/health</a></p>
+            </body>
+            </html>
+            """)
     except Exception as e:
-        return HTMLResponse(f"<h1>Error loading page</h1><p>{str(e)}</p>", status_code=500)
+        import traceback
+        error_msg = traceback.format_exc()
+        print(f"Error in serve_home: {error_msg}")
+        return HTMLResponse(f"<h1>Error loading page</h1><pre>{error_msg}</pre>", status_code=500)
 
-# Serve static files
-static_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
-app.mount("/static", StaticFiles(directory=static_path), name="static")
+# Serve static files (with error handling)
+try:
+    static_path = os.path.join(parent_dir, "static")
+    if os.path.exists(static_path):
+        app.mount("/static", StaticFiles(directory=static_path), name="static")
+    else:
+        print(f"Warning: Static directory not found at {static_path}")
+except Exception as e:
+    print(f"Warning: Could not mount static files: {e}")
 
 class UserMessage(BaseModel):
     message: str

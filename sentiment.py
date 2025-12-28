@@ -4,19 +4,13 @@ def analyze_sentiment(text: str) -> dict:
     """Return polarity and subjectivity of text"""
     try:
         from textblob import TextBlob
-        # Download NLTK data if needed (silent)
-        try:
-            import nltk
-            nltk.download('punkt', quiet=True)
-            nltk.download('brown', quiet=True)
-        except:
-            pass
-        
         blob = TextBlob(text)
         polarity = blob.sentiment.polarity
         subjectivity = blob.sentiment.subjectivity
         return {'polarity': polarity, 'subjectivity': subjectivity}
-    except Exception:
+    except Exception as e:
+        # If TextBlob fails, use fallback
+        pass
         # Fallback to simple sentiment analysis
         text_lower = text.lower()
         positive_words = ['good', 'great', 'happy', 'love', 'like', 'awesome', 'amazing', 'wonderful', 'excellent', 'fantastic']
