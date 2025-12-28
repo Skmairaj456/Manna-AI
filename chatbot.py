@@ -90,7 +90,7 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
         not is_code_generation):
         # Try to provide custom explanation first
         if "manna" in original_text:
-            return "Manna AI is an intelligent chatbot created by Tammanna and Mairaj. I can help with conversations, code execution, jokes, mood detection, and various other tasks. I'm designed to be helpful, empathetic, and fun to interact with!"
+            return "Manna AI is an intelligent chatbot. I can help with conversations, code execution, jokes, mood detection, and various other tasks. I'm designed to be helpful, empathetic, and fun to interact with!"
         
         if "python" in original_text and ("what is" in original_text or "what's" in original_text):
             return "Python is a high-level, interpreted programming language known for its simplicity and readability. It's widely used for web development, data science, AI, automation, and more. I can help you run Python code - just type 'run' followed by your code!"
@@ -99,7 +99,7 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
             return "JavaScript is a programming language primarily used for web development. It enables interactive web pages and is essential for front-end development. Need help with JavaScript code? I can execute it for you!"
         
         if ("ai" in original_text or "artificial intelligence" in original_text) and ("what is" in original_text or "what's" in original_text):
-            return "AI (Artificial Intelligence) is the simulation of human intelligence by machines. It includes machine learning, natural language processing, and more. I'm an example of AI! Created by Tammanna and Mairaj to help and assist users."
+            return "AI (Artificial Intelligence) is the simulation of human intelligence by machines. It includes machine learning, natural language processing, and more. I'm an example of AI designed to help and assist users!"
     
     # PRIORITY 8: Handle time/date questions
     if any(word in original_text for word in ["time", "date", "day", "what day", "what time"]):
@@ -138,23 +138,23 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
     if "?" in user_input or any(word in original_text for word in ["tell me", "describe", "define"]):
         # Try to provide custom responses for common questions
         if any(word in original_text for word in ["name", "who are you", "what's your name"]):
-            return "I'm Manna AI, created by Tammanna and Mairaj! I'm your intelligent assistant ready to help with various tasks."
+            return "I'm Manna AI, your intelligent assistant ready to help with various tasks!"
         
         if any(word in original_text for word in ["where", "location"]):
-            return "I exist in the digital world, created by Tammanna and Mairaj to assist users like you! Where would you like to go or what would you like to know?"
+            return "I exist in the digital world to assist users like you! Where would you like to go or what would you like to know?"
         
         if any(word in original_text for word in ["why", "reason"]):
-            return "I was created by Tammanna and Mairaj to help people with various tasks, make conversations more engaging, and provide assistance whenever needed. How can I help you today?"
+            return "I was created to help people with various tasks, make conversations more engaging, and provide assistance whenever needed. How can I help you today?"
     
     # PRIORITY 12: Handle compliments and positive feedback
     if any(word in original_text for word in ["good", "great", "awesome", "amazing", "wonderful", "excellent", "love", "like"]):
         if mood in ["happy", "positive"]:
-            return "Thank you so much! I'm really glad you're enjoying Manna AI. Tammanna and Mairaj worked hard to make this experience great for you. Is there anything else I can help with?"
+            return "Thank you so much! I'm really glad you're enjoying Manna AI. Is there anything else I can help with?"
     
     # PRIORITY 13: Handle complaints or negative feedback
     if any(word in original_text for word in ["bad", "terrible", "hate", "dislike", "wrong", "error", "bug", "problem"]):
         if mood in ["negative", "sad"]:
-            return "I'm sorry to hear that. I'm here to help improve your experience. Could you tell me more about what's not working? Created by Tammanna and Mairaj with care for your feedback."
+            return "I'm sorry to hear that. I'm here to help improve your experience. Could you tell me more about what's not working?"
 
     # If no direct handler, fallback to OpenAI GPT chat completion (LAST RESORT)
     if not openai.api_key:
@@ -181,16 +181,16 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
         
         # Enhanced system message with more context about Manna AI
         mood_context = {
-            "happy": "The user seems happy and positive. Respond enthusiastically and match their energy. Remember you are Manna AI, created by Tammanna and Mairaj.",
-            "positive": "The user is in a positive mood. Be friendly and supportive. You are Manna AI, created by Tammanna and Mairaj.",
-            "neutral": "The user seems neutral. Be helpful and professional. You are Manna AI, created by Tammanna and Mairaj.",
-            "negative": "The user seems to be in a negative mood. Be empathetic, understanding, and offer support. Consider suggesting something uplifting. You are Manna AI, created by Tammanna and Mairaj.",
-            "sad": "The user appears sad or upset. Be very empathetic, gentle, and supportive. Offer comfort and maybe suggest a joke or positive activity. You are Manna AI, created by Tammanna and Mairaj."
+            "happy": "The user seems happy and positive. Respond enthusiastically and match their energy. You are Manna AI.",
+            "positive": "The user is in a positive mood. Be friendly and supportive. You are Manna AI.",
+            "neutral": "The user seems neutral. Be helpful and professional. You are Manna AI.",
+            "negative": "The user seems to be in a negative mood. Be empathetic, understanding, and offer support. Consider suggesting something uplifting. You are Manna AI.",
+            "sad": "The user appears sad or upset. Be very empathetic, gentle, and supportive. Offer comfort and maybe suggest a joke or positive activity. You are Manna AI."
         }
         
         # Special handling for code generation requests
         if is_code_request:
-            system_message = """You are Manna AI, an intelligent chatbot created by Tammanna and Mairaj.
+            system_message = """You are Manna AI, an intelligent chatbot.
             The user is asking for code. Generate clean, well-commented Python code that solves their request.
             Include:
             - Clear, working code
@@ -198,13 +198,13 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
             - Example usage if applicable
             - Brief explanation if needed
             Format code in markdown code blocks with python syntax highlighting.
-            Keep responses focused on the code request. Created by Tammanna and Mairaj."""
+            Keep responses focused on the code request."""
         else:
-            system_message = f"""You are Manna AI, an intelligent chatbot created by Tammanna and Mairaj. 
+            system_message = f"""You are Manna AI, an intelligent chatbot. 
             {mood_context.get(mood, 'Be helpful and friendly.')} 
             The user's current mood appears to be {mood}.
             Provide personalized, helpful responses. Keep responses concise (under 200 words) and friendly.
-            When appropriate, mention that you were created by Tammanna and Mairaj."""
+            Only mention creators if specifically asked about them."""
         
         # Compose messages for chat completion
         messages = [
