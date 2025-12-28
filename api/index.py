@@ -27,8 +27,12 @@ app = FastAPI()
 # Handle favicon requests (browsers automatically request this)
 @app.get("/favicon.ico")
 async def favicon():
-    from fastapi.responses import Response
-    return Response(status_code=204)  # No content
+    try:
+        from fastapi.responses import Response
+        return Response(status_code=204)  # No content
+    except:
+        # Ultra-simple fallback
+        return Response(content="", status_code=204, media_type="image/x-icon")
 
 # Health check endpoint
 @app.get("/health")
