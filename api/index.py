@@ -59,7 +59,8 @@ get_response = fallback_response
 get_mood = fallback_mood
 get_mood_emoji = fallback_mood_emoji
 
-app = FastAPI(title="Manna AI")
+# Create FastAPI app
+app = FastAPI(title="Manna AI", version="1.0.0")
 
 # Simple HTML template
 SIMPLE_HTML = """<!DOCTYPE html>
