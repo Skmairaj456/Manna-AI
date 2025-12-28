@@ -28,7 +28,7 @@ app = FastAPI()
 @app.get("/", response_class=HTMLResponse)
 async def serve_home():
     try:
-        html_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "Manna.html"))
+        html_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "Manna.html")
         if not os.path.exists(html_path):
             # Fallback: try alternative path
             html_path = os.path.join(os.path.dirname(__file__), "..", "static", "Manna.html")
