@@ -6,6 +6,9 @@ import traceback
 
 def run_code(code: str) -> str:
     """Execute Python code and return output or error"""
+    if not code or not code.strip():
+        return "Please provide code to execute. Example: 'run print(2+2)'"
+    
     try:
         # Create a safe execution environment
         result = subprocess.run(
@@ -15,9 +18,11 @@ def run_code(code: str) -> str:
             timeout=10
         )
         if result.returncode == 0:
-            return result.stdout.strip() or "Code executed successfully (no output)"
+            output = result.stdout.strip()
+            return output if output else "Code executed successfully (no output)"
         else:
-            return f"Error: {result.stderr.strip()}"
+            error = result.stderr.strip()
+            return f"Error: {error}" if error else "Code execution failed"
     except subprocess.TimeoutExpired:
         return "Error: Code execution timed out (max 10 seconds)"
     except Exception as e:

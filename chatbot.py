@@ -45,7 +45,57 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
     if "joke" in original_text or "funny" in original_text:
         return get_joke()
 
-    # PRIORITY 5: Handle code execution and debugging requests
+    # PRIORITY 5: Handle code generation requests (give me code, show me code, write code)
+    if any(phrase in original_text for phrase in ["give me code", "show me code", "write code", "code for", "python code", "example code", "sample code"]):
+        # Handle specific code requests
+        if any(word in original_text for word in ["sum", "add", "addition", "summation"]):
+            if any(word in original_text for word in ["two", "2", "number"]):
+                return """Here's Python code to sum two numbers:
+
+```python
+# Method 1: Simple function
+def add_numbers(a, b):
+    return a + b
+
+# Example usage
+result = add_numbers(5, 3)
+print(result)  # Output: 8
+
+# Method 2: Direct calculation
+num1 = 10
+num2 = 20
+sum_result = num1 + num2
+print(f"Sum of {num1} and {num2} is {sum_result}")
+
+# Method 3: User input
+num1 = float(input("Enter first number: "))
+num2 = float(input("Enter second number: "))
+print(f"Sum: {num1 + num2}")
+```
+
+Created by Tammanna and Mairaj! 💻"""
+        
+        if any(word in original_text for word in ["hello", "hello world"]):
+            return """Here's a simple Python "Hello, World!" program:
+
+```python
+print("Hello, World!")
+```
+
+Or with a function:
+```python
+def greet():
+    print("Hello, World!")
+
+greet()
+```
+
+Created by Tammanna and Mairaj! 💻"""
+        
+        # Generic code response
+        return "I can help you with Python code! Try asking specifically like:\n• 'Give me code for summing two numbers'\n• 'Show me Python code for [your task]'\n• 'Write code for [your task]'\n\nCreated by Tammanna and Mairaj! 💻"
+    
+    # PRIORITY 6: Handle code execution and debugging requests
     if text.strip().startswith(("run", "execute", "code:", "debug")) or "run code" in original_text or "execute code" in original_text:
         if "debug" in text.lower():
             code_to_debug = text.partition("debug")[2].strip()
@@ -56,9 +106,12 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
                 or text.partition("execute")[2].strip()
                 or text.partition("code:")[2].strip()
             )
-            return run_code(code_to_run)
+            if code_to_run:
+                return run_code(code_to_run)
+            else:
+                return "Please provide the code to execute. Example: 'run print(2+2)'"
     
-    # PRIORITY 6: Handle specific question patterns with custom responses
+    # PRIORITY 7: Handle specific question patterns with custom responses
     if "what is" in original_text or "what's" in original_text or "explain" in original_text:
         # Try to provide custom explanation first
         if "manna" in original_text:
@@ -73,7 +126,7 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
         if "ai" in original_text or "artificial intelligence" in original_text:
             return "AI (Artificial Intelligence) is the simulation of human intelligence by machines. It includes machine learning, natural language processing, and more. I'm an example of AI! Created by Tammanna and Mairaj to help and assist users."
     
-    # PRIORITY 7: Handle time/date questions
+    # PRIORITY 8: Handle time/date questions
     if any(word in original_text for word in ["time", "date", "day", "what day", "what time"]):
         from datetime import datetime
         now = datetime.now()
@@ -82,7 +135,7 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
         elif "date" in original_text or "day" in original_text:
             return f"Today is {now.strftime('%A, %B %d, %Y')}. Is there anything else you'd like to know?"
     
-    # PRIORITY 8: Handle math questions (simple calculations)
+    # PRIORITY 9: Handle math questions (simple calculations)
     if re.search(r'\d+\s*[+\-*/]\s*\d+', user_input):
         try:
             # Simple math evaluation (safe)
@@ -101,12 +154,12 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
         mood = "neutral"
         mood_emoji = "😐"
     
-    # PRIORITY 9: Check contextual responses based on mood
+    # PRIORITY 10: Check contextual responses based on mood
     contextual_response = get_contextual_response(user_input, mood)
     if contextual_response:
         return contextual_response
     
-    # PRIORITY 10: Handle general questions with custom responses
+    # PRIORITY 11: Handle general questions with custom responses
     if "?" in user_input or any(word in original_text for word in ["tell me", "describe", "define"]):
         # Try to provide custom responses for common questions
         if any(word in original_text for word in ["name", "who are you", "what's your name"]):
@@ -118,12 +171,12 @@ def get_response(user_input: str, user_id: str = "guest") -> str:
         if any(word in original_text for word in ["why", "reason"]):
             return "I was created by Tammanna and Mairaj to help people with various tasks, make conversations more engaging, and provide assistance whenever needed. How can I help you today?"
     
-    # PRIORITY 11: Handle compliments and positive feedback
+    # PRIORITY 12: Handle compliments and positive feedback
     if any(word in original_text for word in ["good", "great", "awesome", "amazing", "wonderful", "excellent", "love", "like"]):
         if mood in ["happy", "positive"]:
             return "Thank you so much! I'm really glad you're enjoying Manna AI. Tammanna and Mairaj worked hard to make this experience great for you. Is there anything else I can help with?"
     
-    # PRIORITY 12: Handle complaints or negative feedback
+    # PRIORITY 13: Handle complaints or negative feedback
     if any(word in original_text for word in ["bad", "terrible", "hate", "dislike", "wrong", "error", "bug", "problem"]):
         if mood in ["negative", "sad"]:
             return "I'm sorry to hear that. I'm here to help improve your experience. Could you tell me more about what's not working? Created by Tammanna and Mairaj with care for your feedback."
